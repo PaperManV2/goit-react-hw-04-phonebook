@@ -1,0 +1,8 @@
+.contact__list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  list-style-type: none;
+  padding: 0;
+}

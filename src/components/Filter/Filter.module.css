@@ -1,0 +1,20 @@
+.contact__sortItem {
+  width: 300px;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 24px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s ease;
+}
+
+.contact__sortItem:focus {
+  outline: none;
+  border: 2px solid darkgoldenrod;
+  transition: all 0.3s ease;
+}
+.contact__sortItem:hover {
+  border: 2px solid darkgray;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
