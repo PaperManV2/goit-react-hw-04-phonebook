@@ -1,35 +1,35 @@
-import { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { nanoid } from 'nanoid';
-import PropTypes from 'prop-types';
 import { ContactForm } from './ContactForm/ContactForm';
 import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
 import css from './App.module.css';
 
-export class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-    sortOrder: 'asc',
-  };
-  //localStorage
-  componentDidMount() {
-    const storedContacts = localStorage.getItem('contacts');
-    if (storedContacts) {
-      this.setState({ contacts: JSON.parse(storedContacts) });
+export const App = () => {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc');
+
+  useEffect(() => {
+    try {
+      const storedContacts = localStorage.getItem('contacts');
+      if (storedContacts) {
+        setContacts(JSON.parse(storedContacts));
+      }
+    } catch (error) {
+      console.log('Błąd odczytu z localStorage:', error);
     }
-  }
-  //aktualizacja
-  componentDidUpdate(prevState) {
-    const { contacts } = this.state;
-    if (prevState.contacts !== contacts) {
+  }, []);
+
+  useEffect(() => {
+    try {
       localStorage.setItem('contacts', JSON.stringify(contacts));
+    } catch (error) {
+      console.log('Błąd zapisu do localStorage:', error);
     }
-  }
+  }, [contacts]);
 
-  handleAddContact = (name, number) => {
-    const { contacts } = this.state;
-
+  const handleAddContact = (name, number) => {
     const isContactExists = contacts.some(
       contact =>
         contact.name.toLowerCase() === name.toLowerCase() ||
@@ -40,7 +40,6 @@ export class App extends Component {
       alert(
         `Kontakt o nazwie "${name}" lub wpisany numer "${number}" znajdują się już na liście!`
       );
-
       return;
     }
 
@@ -54,19 +53,17 @@ export class App extends Component {
       a.name.localeCompare(b.name)
     );
 
-    this.setState({ contacts: updatedContacts });
+    setContacts(updatedContacts);
   };
 
-  handleDeleteContact = contactId => {
-    const { contacts } = this.state;
+  const handleDeleteContact = contactId => {
     const updatedContacts = contacts.filter(
       contact => contact.id !== contactId
     );
-    this.setState({ contacts: updatedContacts });
+    setContacts(updatedContacts);
   };
 
-  handleEditContact = (contactId, editedName, editedNumber) => {
-    const { contacts } = this.state;
+  const handleEditContact = (contactId, editedName, editedNumber) => {
     const updatedContacts = contacts.map(contact => {
       if (contact.id === contactId) {
         return {
@@ -78,68 +75,44 @@ export class App extends Component {
       return contact;
     });
 
-    this.setState({ contacts: updatedContacts });
+    setContacts(updatedContacts);
   };
 
-  handleSortOrderChange = () => {
-    this.setState(prevState => ({
-      sortOrder: prevState.sortOrder === 'asc' ? 'desc' : 'asc',
-    }));
+  const handleSortOrderChange = () => {
+    setSortOrder(prevSortOrder => (prevSortOrder === 'asc' ? 'desc' : 'asc'));
   };
 
-  handleFilterChange = event => {
-    this.setState({ filter: event.target.value });
+  const handleFilterChange = event => {
+    setFilter(event.target.value);
   };
-  render() {
-    const { contacts, filter, sortOrder } = this.state;
 
-    const filteredContacts = contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filter.toLowerCase())
-    );
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
-    const sortedContacts = filteredContacts.sort((a, b) => {
-      if (sortOrder === 'asc') {
-        return a.name.localeCompare(b.name);
-      } else {
-        return b.name.localeCompare(a.name);
-      }
-    });
+  const sortedContacts = filteredContacts.sort((a, b) => {
+    if (sortOrder === 'asc') {
+      return a.name.localeCompare(b.name);
+    } else {
+      return b.name.localeCompare(a.name);
+    }
+  });
 
-    return (
-      <div className={css.phonebook}>
-        <h1 className={css.phonebook__title}>Phonebook</h1>
-        <ContactForm onAddContact={this.handleAddContact} />
+  return (
+    <div className={css.phonebook}>
+      <h1 className={css.phonebook__title}>Phonebook</h1>
+      <ContactForm onAddContact={handleAddContact} />
 
-        <h2 className={css.contacts__title}>Contacts</h2>
-        <button
-          className={css.sort__button}
-          onClick={this.handleSortOrderChange}
-        >
-          Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
-        </button>
-        <Filter value={filter} onChange={this.handleFilterChange} />
-        <ContactList
-          contacts={sortedContacts}
-          onDeleteContact={this.handleDeleteContact}
-          onEditContact={this.handleEditContact}
-        />
-      </div>
-    );
-  }
-}
-App.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.number.isRequired,
-    })
-  ).isRequired,
-  filter: PropTypes.string.isRequired,
-  sortOrder: PropTypes.oneOf(['asc', 'desc']).isRequired,
-  onAddContact: PropTypes.func.isRequired,
-  onDeleteContact: PropTypes.func.isRequired,
-  onEditContact: PropTypes.func.isRequired,
-  handleSortOrderChange: PropTypes.func.isRequired,
-  handleFilterChange: PropTypes.func.isRequired,
+      <h2 className={css.contacts__title}>Contacts</h2>
+      <button className={css.sort__button} onClick={handleSortOrderChange}>
+        Sort {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
+      </button>
+      <Filter value={filter} onChange={handleFilterChange} />
+      <ContactList
+        contacts={sortedContacts}
+        onDeleteContact={handleDeleteContact}
+        onEditContact={handleEditContact}
+      />
+    </div>
+  );
 };

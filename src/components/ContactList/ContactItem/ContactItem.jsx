@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import css from './ContactItem.module.css';
 import PropTypes from 'prop-types';
 
@@ -32,6 +32,7 @@ export class ContactItem extends Component {
   handleInputChange = event => {
     this.setState({ [event.target.name]: event.target.value });
   };
+
   render() {
     const { contact, onDeleteContact } = this.props;
     const { isEditing, editedName, editedNumber } = this.state;
@@ -79,11 +80,12 @@ export class ContactItem extends Component {
     );
   }
 }
+
 ContactItem.propTypes = {
   contact: PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
-    number: PropTypes.number.isRequired,
+    number: PropTypes.string.isRequired,
   }).isRequired,
   onDeleteContact: PropTypes.func.isRequired,
   onEditContact: PropTypes.func.isRequired,
